@@ -1,0 +1,16 @@
+{
+  "name": "dogbase",
+  "version": "1.0.0",
+  "description": "Dogbase Desktop App",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Elia Vicentini",
+  "license": "MIT",
+  "dependencies": {
+    "convert-string": "^0.1.0",
+    "electron": "^13.1.9",
+    "load-json-file": "^6.2.0"
+  }
+}
