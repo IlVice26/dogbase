@@ -1,9 +1,9 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-const { nativeTheme } = require('electron');
+const { nativeTheme, dialog } = require('electron');
 
-const setup = require('./setup');
+const setup = require('./setup.js');
 
 
 const {app, BrowserWindow, Menu} = electron;
@@ -16,10 +16,14 @@ app.on('ready', function(){
 
     // Creating a new window
     mainWindow = new BrowserWindow({});
-    setup.loadAppConfigFile(mainWindow);
+
+    terminal = setup.getTerminal();
+    configFile = setup.loadAppConfigFile();
+
+    terminal.log("The app.json file has been loaded correctly!");
 
     // Loading the initial html page
-    mainWindow.loadURL(url.format({
+    mainWindow.loadURL(url.format({ // TODO Replace deprecated format function
         pathname: path.join(__dirname, 'html/mainWindow.html'),
         protocol: 'file:',
         slashes: true
@@ -42,18 +46,18 @@ function openSelectionFileWindow() {
         title: 'Seleziona il database creato in Excel',
         properties: ['openFile'],
         filters: [
-            {name: 'Excel Database', extensions: ['txt']}
+            {name: 'Excel Database', extensions: ['xlsx']}
         ]
     }).then(result => {
+        // TODO Being able to open the xlsx file and being able to read and write to it
         var filePath = result.filePaths;
-        console.log(filePath);
     }).catch(err => {
         console.error(err);
     });
 
 }
 
-// Creazione del template della barra del menu
+// Creating the menu bar template
 const mainMenuTemplate = [
     {
         label: 'File',
@@ -75,10 +79,13 @@ const mainMenuTemplate = [
     }
 ]
 
+// If the application is launched on macOS, instead of 
+// displaying 'Electron', it displays 'File'
 if (process.platform == 'darwin') {
     mainMenuTemplate.unshift({});
 }
 
+// During the development phase, DevTools are enabled
 if (process.env.NODE_ENV !== 'production') {
     mainMenuTemplate.push({
         label: 'Developer Tools',

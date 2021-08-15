@@ -11,6 +11,6 @@
   "dependencies": {
     "convert-string": "^0.1.0",
     "electron": "^13.1.9",
-    "load-json-file": "^6.2.0"
+    "jsonfile": "^6.1.0"
   }
 }
