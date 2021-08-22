@@ -3,12 +3,15 @@ const url = require('url');
 const path = require('path');
 const { nativeTheme, dialog } = require('electron');
 
-const setup = require('./setup.js');
-
+const util = require('./util');
+const database = require('./database');
+const { config } = require('process');
 
 const {app, BrowserWindow, Menu} = electron;
 
-let mainWindow;
+var terminal = util.getTerminal();
+var configFile = util.loadAppConfigFile();
+var mainWindow;
 
 app.on('ready', function(){
 
@@ -17,10 +20,9 @@ app.on('ready', function(){
     // Creating a new window
     mainWindow = new BrowserWindow({});
 
-    terminal = setup.getTerminal();
-    configFile = setup.loadAppConfigFile();
-
-    terminal.log("The app.json file has been loaded correctly!");
+    if (configFile['database']['original_path'] == "" && configFile['database']['backup_path'] == "") {
+        openSelectionFileWindow()
+    }
 
     // Loading the initial html page
     mainWindow.loadURL(url.format({ // TODO Replace deprecated format function
@@ -40,6 +42,9 @@ app.on('ready', function(){
 
 });
 
+/**
+ * Opens a window to the user asking to select the excel database
+ */
 function openSelectionFileWindow() {
 
     electron.dialog.showOpenDialog({
@@ -51,6 +56,7 @@ function openSelectionFileWindow() {
     }).then(result => {
         // TODO Being able to open the xlsx file and being able to read and write to it
         var filePath = result.filePaths;
+        // database.checkDatabaseIntegrity(filePath[0]);
     }).catch(err => {
         console.error(err);
     });
@@ -58,15 +64,27 @@ function openSelectionFileWindow() {
 }
 
 // Creating the menu bar template
+// TODO Move the template to util.js with the creation depending on the OS
 const mainMenuTemplate = [
     {
         label: 'File',
         submenu: [
             {
-                label: 'Aggiungi Database',
-                click() { 
-                    openSelectionFileWindow();
-                }
+                label: 'Database',
+                submenu: [
+                    {
+                        label: 'Aggiungi database',
+                        click() { 
+                            openSelectionFileWindow();
+                        }
+                    },
+                    {
+                        label: 'Controllo integrità database',
+                        click() {
+                            database.checkDatabaseIntegrity(file='');
+                        }
+                    }
+                ]
             },
             {
                 label: 'Esci',
@@ -79,11 +97,14 @@ const mainMenuTemplate = [
     }
 ]
 
-// If the application is launched on macOS, instead of 
-// displaying 'Electron', it displays 'File'
-if (process.platform == 'darwin') {
-    mainMenuTemplate.unshift({});
-}
+/**
+ *  // TODO Support for macOS will be developed later
+ *  If the application is launched on macOS, instead of 
+ *  displaying 'Electron', it displays 'File'
+ *  if (process.platform == 'darwin') {
+ *      mainMenuTemplate.unshift({});
+ *  }
+**/
 
 // During the development phase, DevTools are enabled
 if (process.env.NODE_ENV !== 'production') {
@@ -92,7 +113,7 @@ if (process.env.NODE_ENV !== 'production') {
         submenu: [
             {
                 label: 'Toggle DevTools',
-                accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                accelerator: process.platform = 'Ctrl+I',
                 click(item, focusedWindow) {
                     focusedWindow.toggleDevTools();
                 }

@@ -1,2 +1,8 @@
 # Node Modules
 node_modules
+
+# Local backup files
+backup
+
+# Local configuration file
+resources/config

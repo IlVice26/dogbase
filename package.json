@@ -11,6 +11,7 @@
   "dependencies": {
     "convert-string": "^0.1.0",
     "electron": "^13.1.9",
-    "jsonfile": "^6.1.0"
+    "jsonfile": "^6.1.0",
+    "xlsx": "^0.17.1"
   }
 }
